@@ -4,6 +4,9 @@
 # AFTER ERRATA INSTALLATION, SYSTEM GOES FOR REBOOT
 # AUTHOR: praveen.nagegowda.ext@nokia.com
 
+# chmod +x install_errata526
+# ./install_errata526
+
 mkdir -p /media/rhel-errata && mount -o loop,map=off -t iso9660 /var/tmp/rhel-errata-526.iso /media/rhel-errata
 rm -rf /var/opt/rhel-errata-repo && mkdir -p /var/opt/rhel-errata-repo && createrepo -o /var/opt/rhel-errata-repo -u file:///media/rhel-errata /media/rhel-errata/
 
