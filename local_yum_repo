@@ -1,0 +1,80 @@
+﻿CREATING YUM LOCAL REPO USING ISO: [RHEL 6.7]
+==================================
+Without internet connection enabled, using ISO you can update your RHEL system without being registered/subscribed
+In VirtualBox VM, Storage > Controller: SATA > Adds Optical Device . Browse the ISO file.
+
+References:
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/5/html/Deployment_Guide/s1-yum-upgrade-system.html
+https://access.redhat.com/solutions/1355683
+http://lifeonnetwork.com/creating-local-yum-repository-red-hat-enterprise-linux-6/
+
+
+[root@EN-AIO ~]# lsblk
+NAME                        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sr0                          11:0    1 1024M  0 rom
+sr1                          11:1    1  3.6G  0 rom
+sda                           8:0    0   20G  0 disk
+├─sda1                        8:1    0  500M  0 part /boot
+└─sda2                        8:2    0 19.5G  0 part
+  ├─vg_enaio-lv_root (dm-0) 253:0    0 17.5G  0 lvm  /
+  └─vg_enaio-lv_swap (dm-1) 253:1    0    2G  0 lvm  [SWAP]
+[root@EN-AIO ~]# cd /media
+[root@EN-AIO media]# ls
+[root@EN-AIO media]# cd /mnt
+[root@EN-AIO mnt]# ls
+[root@EN-AIO mnt]# cd
+[root@EN-AIO ~]# df -h
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/vg_enaio-lv_root
+                       18G  1.9G   15G  12% /
+tmpfs                 939M     0  939M   0% /dev/shm
+/dev/sda1             477M   41M  411M  10% /boot
+[root@EN-AIO ~]#
+[root@EN-AIO ~]#
+[root@EN-AIO ~]# mount -o loop /dev/sr1 /mnt
+[root@EN-AIO ~]#
+[root@EN-AIO ~]# ls /etc/yum.repos.d/
+redhat.repo  rhel-source.repo
+[root@EN-AIO ~]# cp /mnt/media.repo /etc/yum.repos.d/rhel6_7iso.repo
+[root@EN-AIO ~]# chmod 644 /etc/yum.repos.d/rhel6_7iso.repo
+[root@EN-AIO ~]#
+
+2] Edit the new repo file, changing the gpgcheck=0 setting to 1 and adding the following 3 lines
+enabled=1
+baseurl=file:///mnt/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+The file will resemble as below:
+
+[root@EN-AIO ~]# cat /etc/yum.repos.d/rhel6_7iso.repo
+[InstallMedia]
+name=Red Hat Enterprise Linux 6.7
+mediaid=1435823078.298912
+metadata_expire=-1
+gpgcheck=1
+cost=500
+enabled=1
+baseurl=file:///mnt/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+[root@EN-AIO ~]#
+
+3] clear the related caches by yum clean all and subscription-manager clean once.
+[root@EN-AIO ~]# yum clean all
+Loaded plugins: product-id, security, subscription-manager
+This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+Cleaning repos: InstallMedia
+Cleaning up Everything
+[root@EN-AIO ~]# subscription-manager clean
+All local data removed
+[root@EN-AIO ~]#
+
+4]check whether you can get the packages list from the ISO repo
+yum list --noplugin
+
+5].Then run update
+yum update --noplugin
+[root@EN-AIO ~]# yum update --noplugin
+Loaded plugins: product-id, security, subscription-manager
+This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+Setting up Update Process
+No Packages marked for Update
