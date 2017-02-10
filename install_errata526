@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# BASH SCRIPT TO INSTALL RHEL ERRATA 526.
+# AFTER ERRATA INSTALLATION, SYSTEM GOES FOR REBOOT
+# AUTHOR: praveen.nagegowda.ext@nokia.com
+
+mkdir -p /media/rhel-errata && mount -o loop,map=off -t iso9660 /var/tmp/rhel-errata-526.iso /media/rhel-errata
+rm -rf /var/opt/rhel-errata-repo && mkdir -p /var/opt/rhel-errata-repo && createrepo -o /var/opt/rhel-errata-repo -u file:///media/rhel-errata /media/rhel-errata/
+
+ls /etc/yum.repos.d/
+
+cat <<EOF>> /etc/yum.repos.d/rhel-errata.repo
+[rhel-errata]
+name=Red Hat Enterprise Linux 6.7 x86_64 Server Errata
+baseurl=file:///var/opt/rhel-errata-repo/
+enabled=1 
+gpgcheck=0
+EOF
+
+yum repolist rhel-errata
+yum --disablerepo=* --enablerepo=rhel-errata clean expire-cache
+yum --disablerepo=* --enablerepo=rhel-errata check-update
+yum --disablerepo=* --enablerepo=rhel-errata update -y
+
+sleep 20s
+echo "Update Done, UNMOUNTING ERRATA ISO"
+umount /media/rhel-errata
+
+echo 'GOING FOR REBOOT !!'
+reboot
