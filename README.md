@@ -1,3 +1,4 @@
 # system_integrations
-
-This repository included details about some installation and troubleshooting works on linux
+# praveen.nagegowda.ext@nokia.com
+# Nokia SON installation and system integrations work
+This repository included details about taks on installation/system integrations and troubleshooting/debugging works on linux
